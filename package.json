@@ -1,5 +1,5 @@
 {
-  "name": "laser-chess-server",
+  "name": "websocket_necazian",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
