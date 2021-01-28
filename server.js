@@ -12,59 +12,36 @@ const server = express()
 
 const wss = new Server({server});
 
-let lobbies = [];
+let transmitter = null;
+let receivers = [];
 
 wss.on('connection', (ws) => {
-    let isEmpty = true;
-    for (let key in lobbies) {
-        if (lobbies[key]['secondPlayer'] === null && lobbies[key]['firstPlayer'] !== null) {
-            lobbies[key]['secondPlayer'] = ws;
-            isEmpty = false;
-
-            let color = getRandomInt(2);
-            console.log(color);
-
-            lobbies[key]['firstPlayer'].send('c;' + color);
-            lobbies[key]['secondPlayer'].send('c;' + (color + 1) % 2);
-
-            ws.on('message', function (message) {
-                if (lobbies[key]['firstPlayer'] !== null) {
-                    lobbies[key]['firstPlayer'].send(message);
+    ws.on('message', function (message) {
+        if (transmitter === null && message === 'transmitter') {
+            transmitter = ws;
+        } else if (message === 'receiver') {
+            receivers.push(ws);
+        } else if (transmitter !== null) {
+            if (transmitter === ws) {
+                for (let receiver of receivers) {
+                    receiver.send(message);
                 }
-            });
+            } else {
+                transmitter.send(message);
+            }
+        }
+    });
 
-            ws.on('close', function () {
-                if (lobbies[key]['firstPlayer'] !== null) {
-                    lobbies[key]['firstPlayer'].send('closed');
+    ws.on('close', function () {
+        if (ws === transmitter) {
+            transmitter = null;
+        } else {
+            for (let i in receivers) {
+                let receiver = receivers[i];
+                if (receiver === ws) {
+                    delete receivers[i];
                 }
-                lobbies[key]['secondPlayer'] = null;
-            });
-        }
-    }
-
-    if (isEmpty) {
-        lobbies.push({'firstPlayer': ws, 'secondPlayer': null});
-        let key = lobbies.length - 1;
-        ws.on('message', function (message) {
-            if (lobbies[key]['secondPlayer'] !== null) {
-                lobbies[key]['secondPlayer'].send(message);
             }
-        });
-        ws.on('close', function () {
-            if (lobbies[key]['secondPlayer']) {
-                lobbies[key]['secondPlayer'].send('closed');
-            }
-            lobbies[key]['firstPlayer'] = null;
-        });
-    }
-
-    for (let key in lobbies) {
-        if (lobbies[key]['secondPlayer'] === null && lobbies[key]['firstPlayer'] === null) {
-            delete lobbies[key];
         }
-    }
+    });
 });
-
-function getRandomInt(max) {
-    return Math.floor(Math.random() * Math.floor(max));
-}
