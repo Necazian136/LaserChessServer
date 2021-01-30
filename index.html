@@ -36,6 +36,40 @@
         function sendMessage() {
             ws.send(document.getElementById('input_text').value);
         }
+
+        let lastKey = null;
+        let keyPressMap = {'ArrowUp': false, 'ArrowDown': false, 'ArrowLeft': false, 'ArrowRight': false};
+        let keyToValueMap = {'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right'};
+
+        document.addEventListener('keydown', function(event) {
+            if (keyPressMap[event.code] !== undefined && lastKey !== event.code) {
+                lastKey = event.code;
+                keyPressMap[event.code] = true;
+
+                ws.send(keyToValueMap[event.code]);
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            if (keyPressMap[event.code] !== undefined) {
+                keyPressMap[event.code] = false;
+            }
+            let isAllUnpressed = true;
+            for (let i in keyPressMap) {
+                if (keyPressMap[i]) {
+                    if (lastKey !== i) {
+                        ws.send(keyToValueMap[i]);
+                    }
+                    isAllUnpressed = false;
+                    lastKey = i;
+                    break;
+                }
+            }
+            if (isAllUnpressed) {
+                lastKey = null;
+                ws.send('stop');
+            }
+        });
     </script>
 </head>
 <body>
