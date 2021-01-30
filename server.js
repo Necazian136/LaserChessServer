@@ -25,8 +25,8 @@ wss.on('connection', (ws) => {
             counter++;
         } else if (transmitter !== null) {
             if (transmitter === ws) {
-                for (let receiver of receivers) {
-                    receiver.send(message);
+                for (let i in receivers) {
+                    receivers[i].send(message);
                 }
             } else {
                 transmitter.send(message);

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <title>WebServer</title>
     <script>
-        let socket = new WebSocket("wss://websocket-necazian.herokuapp.com/");
-        socket.onopen = function () {
-            socket.send('receiver');
+        let ws = new WebSocket("wss://websocket-necazian.herokuapp.com/");
+        ws.onopen = function () {
+            ws.send('receiver');
         };
 
-        socket.onclose = function (event) {
+        ws.onclose = function (event) {
             if (event.wasClean) {
                 console.log('Соединение закрыто чисто');
             } else {
@@ -18,7 +18,7 @@
             console.log('Код: ' + event.code + ' причина: ' + event.reason);
         };
 
-        socket.onmessage = function (event) {
+        ws.onmessage = function (event) {
             let canvas = document.getElementById("camera");
             let ctx = canvas.getContext("2d");
 
@@ -29,12 +29,12 @@
             image.src = "data:image/png;base64," + event.data;
         };
 
-        socket.onerror = function (error) {
+        ws.onerror = function (error) {
             console.log("Ошибка " + error.message);
         };
 
         function sendMessage() {
-            socket.send(document.getElementById('input_text').value);
+            ws.send(document.getElementById('input_text').value);
         }
     </script>
 </head>
