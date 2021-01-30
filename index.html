@@ -5,11 +5,11 @@
     <title>WebServer</title>
     <script>
         let socket = new WebSocket("wss://websocket-necazian.herokuapp.com/");
-        socket.onopen = function() {
+        socket.onopen = function () {
             socket.send('receiver');
         };
 
-        socket.onclose = function(event) {
+        socket.onclose = function (event) {
             if (event.wasClean) {
                 console.log('Соединение закрыто чисто');
             } else {
@@ -18,11 +18,18 @@
             console.log('Код: ' + event.code + ' причина: ' + event.reason);
         };
 
-        socket.onmessage = function(event) {
-            console.log("Получены данные " + event.data);
+        socket.onmessage = function (event) {
+            let canvas = document.getElementById("camera");
+            let ctx = canvas.getContext("2d");
+
+            let image = new Image();
+            image.onload = function () {
+                ctx.drawImage(image, 0, 0, 400, 300);
+            };
+            image.src = "data:image/png;base64," + event.data;
         };
 
-        socket.onerror = function(error) {
+        socket.onerror = function (error) {
             console.log("Ошибка " + error.message);
         };
 
@@ -32,6 +39,7 @@
     </script>
 </head>
 <body>
+<canvas id="camera" width="400" height="300"></canvas>
 <label>
     <input id="input_text" type="text">
 </label>

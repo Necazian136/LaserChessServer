@@ -13,14 +13,16 @@ const server = express()
 const wss = new Server({server});
 
 let transmitter = null;
-let receivers = [];
+let receivers = {};
+let counter = 0;
 
 wss.on('connection', (ws) => {
     ws.on('message', function (message) {
         if (transmitter === null && message === 'transmitter') {
             transmitter = ws;
         } else if (message === 'receiver') {
-            receivers.push(ws);
+            receivers[counter] = ws;
+            counter++;
         } else if (transmitter !== null) {
             if (transmitter === ws) {
                 for (let receiver of receivers) {
