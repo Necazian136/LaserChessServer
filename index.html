@@ -3,8 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>WebServer</title>
+    <script>
+        let socket = new WebSocket("wss://websocket-necazian.herokuapp.com/");
+        socket.onopen = function() {
+            socket.send('receiver');
+        };
+
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                console.log('Соединение закрыто чисто');
+            } else {
+                console.log('Обрыв соединения'); // например, "убит" процесс сервера
+            }
+            console.log('Код: ' + event.code + ' причина: ' + event.reason);
+        };
+
+        socket.onmessage = function(event) {
+            console.log("Получены данные " + event.data);
+        };
+
+        socket.onerror = function(error) {
+            console.log("Ошибка " + error.message);
+        };
+
+        function sendMessage() {
+            socket.send(document.getElementById('input_text').value);
+        }
+    </script>
 </head>
 <body>
-<h1>Hello World!</h1>
+<label>
+    <input id="input_text" type="text">
+</label>
+<button onclick="sendMessage()">Send</button>
 </body>
 </html>
