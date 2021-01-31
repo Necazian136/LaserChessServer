@@ -18,7 +18,7 @@ let counter = 0;
 
 wss.on('connection', (ws) => {
     ws.on('message', function (message) {
-        if (transmitter === null && message === 'transmitter') {
+        if (message === 'transmitter') {
             transmitter = ws;
         } else if (message === 'receiver') {
             receivers[counter] = ws;
